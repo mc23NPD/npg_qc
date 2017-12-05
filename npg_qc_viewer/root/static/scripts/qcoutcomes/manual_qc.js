@@ -77,6 +77,13 @@ define([
     }) ();
     QC.ProdConfiguration = ProdConfiguration;
 
+    var _validatelaunchProcessParameters =  function (isRunPage, qcOutcomes, qcOutcomesURL) {
+      if ( typeof isRunPage !== 'boolean' ||
+           typeof qcOutcomes !== 'object' ||
+           typeof qcOutcomesURL !== 'string' ) {
+        throw 'Invalid parameter type.';
+      }
+    }  
 
     var _colourElementByUQCOutcome = function (elementToMark, uqcOutcome) {
       var colour = COLOURS_RGB.GREY;
@@ -88,6 +95,16 @@ define([
       elementToMark.css("padding-right", "5px")
                       .css("padding-left", "10px")
                       .css("background-color", colour);
+    };
+
+    var _getColourByUQCOutcome = function (uqcOutcome) {
+      var colour = "grey";
+      if (uqcOutcome === "Accepted"){
+        colour = "green";
+      } else if (uqcOutcome === "Rejected") {
+        colour = "red";
+      }
+      return colour;
     };
 
     /*
@@ -140,13 +157,8 @@ define([
     };
 
     QC.launchManualQCProcesses = function (isRunPage, qcOutcomes, qcOutcomesURL) {
+      _validatelaunchProcessParameters (isRunPage, qcOutcomes, qcOutcomesURL);
       try {
-        if ( typeof isRunPage !== 'boolean' ||
-             typeof qcOutcomes !== 'object' ||
-             typeof qcOutcomesURL !== 'string' ) {
-          throw 'Invalid parameter type.';
-        }
-
         if ( typeof qcOutcomes.seq === 'undefined' ) {
           throw 'Sequencing outcomes cannot be undefined.';
         }
@@ -230,15 +242,12 @@ define([
      * 
      */
     QC.launchUtilityQCProcesses = function (isRunPage, qcOutcomes, qcOutcomesURL) {
+      _validatelaunchProcessParameters (isRunPage, qcOutcomes, qcOutcomesURL);
       var UQC_CONTAINER_STRING = '<span class="' + UQC_CONTROL_CLASS + '"></span>';
       try {
-        if ( typeof isRunPage !== 'boolean' ||
-             typeof qcOutcomes !== 'object' ||
-             typeof qcOutcomesURL !== 'string' ) {
-          throw 'Invalid parameter type.';
-        }
+        var prodConfiguration = new NPG.QC.ProdConfiguration(qcOutcomesURL);
         var uqcOutcomes = qcOutcomes.uqc;
-   
+  
         $(MQC_ABLE_CLASS).each(function (index, element) {
           if (NPG.QC.isElementUQCable(element)){
             var $element = $(element);
@@ -263,7 +272,12 @@ define([
                   typeof uqcOutcomes[rptKey] !== 'undefined') {
                 outcome = uqcOutcomes[rptKey].uqc_outcome;
               } 
-              _colourElementByUQCOutcome($elementToMark, outcome);            
+              //_colourElementByUQCOutcome($elementToMark, outcome);
+              var c = isRunPage ? new NPG.QC.LaneMQCControl(prodConfiguration)
+                              : new NPG.QC.LibraryMQCControl(prodConfiguration);
+              c.rowId   = rowId;
+              c.rptKey  = rptKey;
+              c.linkControl($elementToMark);
             }  
           }
         });
