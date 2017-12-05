@@ -272,7 +272,7 @@ define([
                   typeof uqcOutcomes[rptKey] !== 'undefined') {
                 outcome = uqcOutcomes[rptKey].uqc_outcome;
               } 
-              //_colourElementByUQCOutcome($elementToMark, outcome);
+              _colourElementByUQCOutcome($elementToMark, outcome);
               var c = isRunPage ? new NPG.QC.LaneMQCControl(prodConfiguration)
                               : new NPG.QC.LibraryMQCControl(prodConfiguration);
               c.rowId   = rowId;
