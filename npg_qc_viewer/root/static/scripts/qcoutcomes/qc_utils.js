@@ -108,8 +108,10 @@ define(['jquery'], function () {
   };
 
   var QC_OUTCOMES = {
+    ACCEPTED_UQC:         'Accepted', 
     ACCEPTED_PRELIMINARY: 'Accepted preliminary',
     ACCEPTED_FINAL:       'Accepted final',
+    REJECTED_UQC:         'Rejected', 
     REJECTED_PRELIMINARY: 'Rejected preliminary',
     REJECTED_FINAL:       'Rejected final',
     UNDECIDED:            'Undecided',
