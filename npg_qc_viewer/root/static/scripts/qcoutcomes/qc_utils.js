@@ -116,7 +116,8 @@ define(['jquery'], function () {
     REJECTED_FINAL:       'Rejected final',
     UNDECIDED:            'Undecided',
     UNDECIDED_FINAL:      'Undecided final',
-    UNDECIDED_UQC:        'Undecided'
+    UNDECIDED_UQC:        'Undecided',
+    UNDEFINED:            'undefined'
   };
 
   return {

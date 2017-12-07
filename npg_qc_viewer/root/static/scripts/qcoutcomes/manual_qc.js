@@ -276,7 +276,7 @@ define([
               qc_css_styles.removePreviousQCOutcomeStyles ($elementToMark);
  
               $elementToMark.before('<span class="utility_spacer"> </span>');
-              var c = isRunPage ? new NPG.QC.LaneMQCControl(prodConfiguration)
+              var c = isRunPage ? new NPG.QC.LaneUQCControl(prodConfiguration)
                               : new NPG.QC.LibraryUQCControl(prodConfiguration);
               c.outcome  = outcome;
               c.rowId   = rowId;
@@ -412,6 +412,11 @@ define([
         this.removeMQCFormat();
       };
 
+      MQCControl.prototype.setUndefined = function() {
+        this.removeAllQCOutcomeCSSClasses();
+        this.removeMQCFormat();
+      };
+
       /**
        * Switch the outcome and adjust the view accordingly
        * @param outcome new outcome for the control.
@@ -472,6 +477,7 @@ define([
               case qc_utils.OUTCOMES.ACCEPTED_UQC         : this.setAcceptedUqc(); break;
               case qc_utils.OUTCOMES.REJECTED_UQC         : this.setRejectedUqc(); break;
               case qc_utils.OUTCOMES.UNDECIDED_UQC        : this.setUndecidedUqc(); break;
+              case qc_utils.OUTCOMES.UNDEFINED            : this.setUndefined(); break;
             }
           }
         }
@@ -818,6 +824,119 @@ define([
       return LibraryUQCControl;
     }) ();
     QC.LibraryUQCControl = LibraryUQCControl;
+
+    var LaneUQCControl = (function () {
+      /**
+       * Controller for individual lanes GUI.
+       * @param abstractConfiguration {Object}
+       * @memberof module:NPG/QC
+       * @constructor
+       */
+      function LaneUQCControl(abstractConfiguration) {
+        NPG.QC.MQCControl.call(this, abstractConfiguration);
+        this.CONFIG_UPDATE_SERVICE = "";
+      }
+
+      LaneUQCControl.prototype = new NPG.QC.MQCControl();
+
+      /**
+       * Change the outcome.
+       */
+      LaneUQCControl.prototype.updateOutcome = function(outcome) {
+        var prevOutcome = this.outcome;
+        try {
+          var self = this;
+          if(outcome != self.outcome) {
+            //Show progress icon
+            self.lane_control.find(self.LANE_MQC_WORKING_CLASS).html("<img src='"
+                + this.abstractConfiguration.getRoot()
+                + "/images/waiting.gif' width='10' height='10' title='Processing request.'>");
+
+            var query = qc_utils.buildUpdateQuery(self.TYPE_SEQ, [{rptKey: self.rptKey, mqc_outcome: outcome}]);
+            $.ajax({
+              url: self.abstractConfiguration.qcOutcomesURL,
+              type: 'POST',
+              contentType: 'application/json',
+              data: JSON.stringify(query),
+              cache: false
+            }).error( function (jqXHR) {
+              self.processAfterFail(jqXHR);
+            }).success( function () {
+              try {
+                qc_utils.removeErrorMessages();
+                self.updateView(outcome);
+              } catch (ex) {
+                qc_utils.displayError('Succesfully updated outcome to "' +
+                                      outcome +
+                                      '", but error while updating interface. ' +
+                                      ex);
+              }
+            }).always( function () {
+              //Clear progress icon
+              self.lane_control.find(self.LANE_MQC_WORKING_CLASS).empty();
+            });
+          }
+        } catch (ex) {
+          qc_utils.displayError('Error while trying to update outcome to "' + outcome + '". ' + ex);
+          this.lane_control.find('input:radio').val([prevOutcome]);
+          this.updateView(prevOutcome);
+          this.lane_control.find(self.LANE_MQC_WORKING_CLASS).empty();
+        }
+      };
+
+      /**
+       * Builds the gui controls necessary for the mqc operation and passes them to the view.
+       */
+      LaneUQCControl.prototype.generateActiveControls = function() {
+        var self = this;
+        var outcomes = [
+          qc_utils.OUTCOMES.ACCEPTED_UQC,
+          qc_utils.OUTCOMES.UNDECIDED_UQC,
+          qc_utils.OUTCOMES.REJECTED_UQC
+        ];
+        var root   = self.abstractConfiguration.getRoot();
+        var labels = [
+          "<img src='" + root + "/images/tick.png'  title='Mark lane as uqc pass'/>", // for accepted
+          '&nbsp;&nbsp;&nbsp;', // for undecided
+          "<img src='" + root + "/images/cross.png' title='Mark lane as uqc fail'/>"
+        ]; // for rejected
+        //Remove old working span
+        self.lane_control.children(self.LANE_MQC_WORKING_CLASS).remove();
+        //Create and add radios
+        var name = 'radios_' + self.rowId;
+        for(var i = 0; i < outcomes.length; i++) {
+          var outcome = outcomes[i];
+          var label = labels[i];
+          var checked = null;
+          if (self.outcome === outcome) {
+            checked = true;
+          }
+          var radio = new NPG.QC.UI.MQCOutcomeRadio(self.rowId, outcome, label, name, checked);
+          self.lane_control.append(radio.asObject());
+        }
+        self.addMQCFormat();
+        // self.lane_control.append($("<span class='lane_mqc_button' title='Save current outcome as final (cannot be changed again)'><img src='" +
+        //     self.abstractConfiguration.getRoot() +
+        //     "/images/padlock.png'></span>"));
+        // self.lane_control.children('.lane_uqc_save').off("click").on("click", function() {
+        //   try {
+        //     self.saveAsFinalOutcome();
+        //   } catch (ex) {
+        //     qc_utils.displayError('Error while saving outcome "' + self.outcome + '" as final. ' + ex);
+        //   }
+        // });
+
+        //link the radio group to the update function
+        $("input[name='" + name + "']").on("change", function () {
+          self.updateOutcome(this.value);
+        });
+        //add a new working span
+        self.lane_control.append("<span class='lane_mqc_working' />");
+      };
+
+      return LaneUQCControl;
+    }) ();
+    QC.LaneUQCControl = LaneUQCControl;
 
     /* Plex */
   }) (NPG.QC || (NPG.QC = {}));
