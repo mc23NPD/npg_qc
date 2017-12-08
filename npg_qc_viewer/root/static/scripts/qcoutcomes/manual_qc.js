@@ -411,9 +411,17 @@ define([
         this.lane_control.children('.lane_mqc_save').hide();
       };
 
+      MQCControl.prototype.setUndefinedUQC = function() {
+        this.outcome = qc_utils.OUTCOMES.UNDEFINED_UQC;
+        this.removeAllQCOutcomeCSSClasses();
+        this.lane_control.before('<span class="utility_spacer"> </span>');
+        this.removeMQCFormat();
+      };
+
       MQCControl.prototype.setUndecidedUqc = function() {
         this.outcome = qc_utils.OUTCOMES.UNDECIDED_UQC;
         this.removeAllQCOutcomeCSSClasses();
+        this.lane_control.before('<span class="utility_spacer"> </span>');
         this.removeMQCFormat();
       };
 
@@ -458,7 +466,12 @@ define([
         this.lane_control = lane_control;
         if ( typeof this.outcome  === "undefined" ) {
           this.generateActiveControls();
-          this.setUndefined();
+          if (qcType === 'mqc') {
+            this.setUndefined();
+          } else if (qcType === 'uqc') {
+            this.setUndefinedUQC();
+          }
+          
         } else if ( this.outcome === qc_utils.OUTCOMES.ACCEPTED_PRELIMINARY ||
             this.outcome === qc_utils.OUTCOMES.REJECTED_PRELIMINARY ||
             this.outcome === qc_utils.OUTCOMES.ACCEPTED_UQC ||
