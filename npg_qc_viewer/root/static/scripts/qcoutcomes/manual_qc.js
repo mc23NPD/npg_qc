@@ -417,11 +417,6 @@ define([
         this.removeMQCFormat();
       };
 
-      MQCControl.prototype.setUndefined = function() {
-        this.removeAllQCOutcomeCSSClasses();
-        this.removeMQCFormat();
-      };
-
       /**
        * Switch the outcome and adjust the view accordingly
        * @param outcome new outcome for the control.
@@ -825,6 +820,11 @@ define([
         this.lane_control.parent().removeClass('td_library_mqc');
         this.lane_control.parent().css('text-align', 'center'); // For firefox
       };
+      
+      LibraryUQCControl.prototype.setUndefined = function() {
+        this.removeAllQCOutcomeCSSClasses();
+        this.removeMQCFormat();
+      };
 
       return LibraryUQCControl;
     }) ();
@@ -937,6 +937,12 @@ define([
         });
         //add a new working span
         self.lane_control.append("<span class='lane_mqc_working' />");
+      };
+
+
+      LaneUQCControl.prototype.setUndefined = function() {
+        this.removeAllQCOutcomeCSSClasses();
+        this.removeMQCFormat();
       };
 
       return LaneUQCControl;
