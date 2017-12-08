@@ -29,10 +29,14 @@ define(['jquery'], function () {
       return (css.match (/qc_outcome[a-zA-Z_]+/gi) || []).join(' ');
     });
 
-    var utilityClasses = (element.parent().find("span").attr('class').match (/utility_[a-zA-Z_]+/gi) || []);
-    utilityClasses.forEach(function (classToRemove) {
+    var parentSpan = element.parent().find("span");    
+    var utilityClasses;
+    if (parentSpan.length !== 0 ) {
+      utilityClasses = (parentSpan.attr('class').match (/utility_[a-zA-Z_]+/gi) || []);
+      utilityClasses.forEach(function (classToRemove) {
       element.parent().find("span." + classToRemove).remove("." + classToRemove);
     });
+    }
   };
 
   var displayElementAs = function( element, qcOutcome ) {

@@ -532,15 +532,16 @@ requirejs([
     });
 
     QUnit.test("Clickable UQC link ", function (assert) {
+      $("#qunit-fixture").prepend("<ul id='ajax_status'></ul>");
       var $UQC_LINK_PLACEHOLDER = $("#summary_to_csv").parent().parent() ;
       assert.equal($UQC_LINK_PLACEHOLDER.length, 0, 'No $UQC_LINK_PLACEHOLDER');
+
       var callback = function() {return true;};
-      assert.throws(
-                  function() {
-                    NPG.QC.addUQCLink (callback);
-                  },
-                  /Error: The UQC Link placeholder could not be found./, 
-                  "Throws error when the UQC Link placeholder is not found"
+      NPG.QC.addUQCLink (callback);
+      assert.equal(
+                  $("#ajax_status .failed_mqc").text(),
+                  "The UQC Link could not be added. The Link\'s placeholder could not be found.",
+                  "Warns when the UQC Link placeholder is not found"
                   );
 
       var page_fixture = fixtures.fixtures_menu_links;
@@ -553,7 +554,7 @@ requirejs([
                     function() {
                       NPG.QC.addUQCLink ();
                     },
-                    /Error: A defined callback function is required as parameter/, 
+                    /A defined callback function is required as parameter/, 
                     "Throws error when no callback function is passed"
                     );
 
@@ -562,7 +563,7 @@ requirejs([
                     function() {
                       NPG.QC.addUQCLink (callback);
                     },
-                     /Error: A defined callback function is required as parameter/, 
+                     /A defined callback function is required as parameter/, 
                      "Throws error when callback is not a function");
 
       assert.equal(nbUQCLinks, 0, 'No preexisting annotation Link');
@@ -692,11 +693,7 @@ requirejs([
       var page_fixture = fixtures.fixtures_menu_links;
       var MQC_ABLE_CLASS = '.lane_mqc_control';
       var UQC_CONTROL_CLASS = 'uqc_control';
-      var COLOURS_RGB = {
-        RED:   'rgb(255, 0, 0)',
-        GREEN: 'rgb(0, 128, 0)',
-        GREY:  'rgb(128, 128, 128)',
-      };
+
       var qcOutcomes = {"lib":{},
                         "uqc":{"18245:1:1":{"uqc_outcome":"Rejected"},
                                "18245:1:2":{"uqc_outcome":"Accepted"},
@@ -714,27 +711,37 @@ requirejs([
       $('#uqcClickable').trigger('click');
       
 
-      var expectedColours = [
-        COLOURS_RGB.RED,
-        COLOURS_RGB.GREEN,
-        COLOURS_RGB.GREY,
-        COLOURS_RGB.GREY
+      var expectedDefinedValues = [
+        "Rejected",
+        "Accepted",
+        "Undecided"
       ];
 
       [
         "18245:1:1",
         "18245:1:2",
-        "19001:1:1",
-        "19001:1:2"
-      ].forEach(function(targetId, index) {
-        var $element = $($(qc_utils.buildIdSelectorFromRPT(targetId) + ' .' + UQC_CONTROL_CLASS)[0]);
-        assert.ok(typeof $element.css("background-color") !== 'undefined','colour is defined for ' + targetId);
-        assert.equal(
-          $element.css("background-color"),
-          expectedColours[index],
-          'expected colour found'
-        ); 
+        "19001:1:1"
+      ].forEach (function(targetId, index) {
+          var $inputButtons = $(qc_utils.buildIdSelectorFromRPT(targetId) + ' .' + UQC_CONTROL_CLASS + ">input");
+          var outcomeValue;
+          $inputButtons.each (function(ind, input) {
+             if ($(input).is("[checked]")){
+                 outcomeValue = $(input).attr("value");
+             }
+          });
+          assert.ok(typeof outcomeValue !== 'undefined','value is defined for ' + targetId);
+          assert.equal( outcomeValue, expectedDefinedValues[index], 'expected value found for ' + targetId); 
       });
+
+      var $inputButtons = $(qc_utils.buildIdSelectorFromRPT("19001:1:2") + ' .' + UQC_CONTROL_CLASS + ">input");
+      var outcomeValue;
+      $inputButtons.each (function(ind, input) {
+         if ($(input).is("[checked]")){
+             outcomeValue = $(input).attr("value");
+         }
+      });
+      assert.ok(typeof outcomeValue === 'undefined','value is undefined for 19001:1:2');
+
     });    
 
     // run the tests.
