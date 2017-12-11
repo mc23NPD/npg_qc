@@ -28,16 +28,7 @@ define(['jquery'], function () {
     element.removeClass(function (index, css) {
       return (css.match (/qc_outcome[a-zA-Z_]+/gi) || []).join(' ');
     });
-
     element.parent().find('span[class^="utility_"]').remove('[class^="utility_"]');
-    // var parentSpan = element.parent().find("span");    
-    // var utilityClasses;
-    // if (parentSpan.length !== 0 ) {
-    //   utilityClasses = (parentSpan.attr('class').match (/utility_[a-zA-Z_]+/gi) || []);
-    //   utilityClasses.forEach(function (classToRemove) {
-    //     element.parent().find("span." + classToRemove).remove("." + classToRemove);
-    // });
-    // }
   };
 
   var displayElementAs = function( element, qcOutcome ) {
