@@ -113,7 +113,9 @@ define(['jquery'], function () {
     REJECTED_PRELIMINARY: 'Rejected preliminary',
     REJECTED_FINAL:       'Rejected final',
     UNDECIDED:            'Undecided',
-    UNDECIDED_FINAL:      'Undecided final'
+    UNDECIDED_FINAL:      'Undecided final',
+    ACCEPTED_UQC:         'Accepted',
+    REJECTED_UQC:         'Rejected'
   };
 
   return {

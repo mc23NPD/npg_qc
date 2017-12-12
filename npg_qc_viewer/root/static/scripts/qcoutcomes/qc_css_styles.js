@@ -28,6 +28,7 @@ define(['jquery'], function () {
     element.removeClass(function (index, css) {
       return (css.match (/qc_outcome[a-zA-Z_]+/gi) || []).join(' ');
     });
+    element.parent().find('span[class^="utility_"]').remove('[class^="utility_"]');
   };
 
   var displayElementAs = function( element, qcOutcome ) {
