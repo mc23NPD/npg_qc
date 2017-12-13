@@ -609,9 +609,9 @@ define([
           var radio = new NPG.QC.UI.MQCOutcomeRadio(self.rowId, outcome, label, name, checked);
           self.lane_control.append(radio.asObject());
         }
-        self.addMQCFormat();
 
         if (qcType === 'mqc') {
+          self.addMQCFormat();
           self.lane_control.append($("<span class='lane_mqc_button lane_mqc_save' title='Save current outcome as final (cannot be changed again)'><img src='" +
                                    self.abstractConfiguration.getRoot() + 
                                    "/images/padlock.png'></span>"));
@@ -726,7 +726,11 @@ define([
           var radio = new NPG.QC.UI.MQCOutcomeRadio(self.rowId, outcome, label, name, checked);
           self.lane_control.append(radio.asObject());
         }
-        self.addMQCFormat();
+        if (qcType === 'mqc') {
+          self.addMQCFormat();
+        } else if (qcType === 'uqc') {
+          self.addUQCFormat();
+        }
         
         //link the radio group to the update function
         $("input[name='" + name + "']").on("change", function () {
@@ -744,6 +748,10 @@ define([
       LibraryMQCControl.prototype.addMQCFormat = function (qcType) {
         this.lane_control.parent().css('text-align', 'left'); // For firefox
         this.lane_control.parent().addClass('td_library_mqc');
+      };
+
+      MQCControl.prototype.addUQCFormat = function () {
+        this.lane_control.parent().addClass('td_library_uqc');
       };
 
 

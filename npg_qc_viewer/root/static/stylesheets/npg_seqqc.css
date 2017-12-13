@@ -440,6 +440,11 @@ a, a:link, a:visited, a:hover {
   text-align: "left";
 }
 
+.td_library_uqc {
+  min-width: 110px;
+  text-align: "center";
+}
+
 .mqc {
   display: inline;
   padding-right: 5px;
