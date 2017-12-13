@@ -555,7 +555,7 @@ requirejs([
                       NPG.QC.addUQCLink ();
                     },
                     /A defined callback function is required as parameter/, 
-                    "Throws when no callback function is passed"
+                    "Throws error when no callback function is passed"
                     );
 
       callback = 3;
@@ -564,7 +564,7 @@ requirejs([
                       NPG.QC.addUQCLink (callback);
                     },
                      /A defined callback function is required as parameter/, 
-                     "Throws when callback is not a function");
+                     "Throws error when callback is not a function");
 
       assert.equal(nbUQCLinks, 0, 'No preexisting annotation Link');
       NPG.QC.addUQCLink (function() {});
@@ -693,11 +693,7 @@ requirejs([
       var page_fixture = fixtures.fixtures_menu_links;
       var MQC_ABLE_CLASS = '.lane_mqc_control';
       var UQC_CONTROL_CLASS = 'uqc_control';
-      var COLOURS_RGB = {
-        RED:   'rgb(255, 0, 0)',
-        GREEN: 'rgb(0, 128, 0)',
-        GREY:  'rgb(128, 128, 128)',
-      };
+
       var qcOutcomes = {"lib":{},
                         "uqc":{"18245:1:1":{"uqc_outcome":"Rejected"},
                                "18245:1:2":{"uqc_outcome":"Accepted"},
@@ -715,27 +711,37 @@ requirejs([
       $('#uqcClickable').trigger('click');
       
 
-      var expectedColours = [
-        COLOURS_RGB.RED,
-        COLOURS_RGB.GREEN,
-        COLOURS_RGB.GREY,
-        COLOURS_RGB.GREY
+      var expectedDefinedValues = [
+        "Rejected",
+        "Accepted",
+        "Undecided"
       ];
 
       [
         "18245:1:1",
         "18245:1:2",
-        "19001:1:1",
-        "19001:1:2"
-      ].forEach(function(targetId, index) {
-        var $element = $($(qc_utils.buildIdSelectorFromRPT(targetId) + ' .' + UQC_CONTROL_CLASS)[0]);
-        assert.ok(typeof $element.css("background-color") !== 'undefined','colour is defined for ' + targetId);
-        assert.equal(
-          $element.css("background-color"),
-          expectedColours[index],
-          'expected colour found'
-        ); 
+        "19001:1:1"
+      ].forEach (function(targetId, index) {
+          var $inputButtons = $(qc_utils.buildIdSelectorFromRPT(targetId) + ' .' + UQC_CONTROL_CLASS + ">input");
+          var outcomeValue;
+          $inputButtons.each (function(ind, input) {
+             if ($(input).is("[checked]")){
+                 outcomeValue = $(input).attr("value");
+             }
+          });
+          assert.ok(typeof outcomeValue !== 'undefined','value is defined for ' + targetId);
+          assert.equal( outcomeValue, expectedDefinedValues[index], 'expected value found for ' + targetId); 
       });
+
+      var $inputButtons = $(qc_utils.buildIdSelectorFromRPT("19001:1:2") + ' .' + UQC_CONTROL_CLASS + ">input");
+      var outcomeValue;
+      $inputButtons.each (function(ind, input) {
+         if ($(input).is("[checked]")){
+             outcomeValue = $(input).attr("value");
+         }
+      });
+      assert.ok(typeof outcomeValue === 'undefined','value is undefined for 19001:1:2');
+
     });    
 
     // run the tests.

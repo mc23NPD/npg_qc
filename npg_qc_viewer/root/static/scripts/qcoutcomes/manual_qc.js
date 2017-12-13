@@ -212,7 +212,7 @@ define([
                       });
               $element.css("padding-right", "5px").css("padding-left", "10px");
               var obj = $(qc_utils.buildIdSelector(c.rowId)).find('.lane_mqc_control');
-              c.linkControl(obj);
+              c.linkControl(obj, 'mqc');
             }
           }
         });
