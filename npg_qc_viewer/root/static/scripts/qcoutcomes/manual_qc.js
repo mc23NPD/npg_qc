@@ -246,7 +246,7 @@ define([
         var uqcOutcomes = qcOutcomes.uqc;
    
         $(MQC_ABLE_CLASS).each(function (index, element) {
-          if (NPG.QC.isElementUQCable(element)){
+          if (NPG.QC.isElementUQCable(element) || !isRunPage){
             var $element = $(element);
             var rowId = $element.closest('tr').attr('id');
             var $elementToMark;
