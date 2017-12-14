@@ -171,7 +171,7 @@ define([
           }
           prevOutcomes = qcOutcomes.lib;
           // Cut process if lane is already final or there is nothing to qc
-          if ( !qc_utils.seqFinal(qcOutcomes.seq) || $('.lane_mqc_control').length === 0 ) {
+          if ( !qc_utils.seqFinal(qcOutcomes.seq) || $(MQC_ABLE_CLASS).length === 0 ) {
             return;
           }
 
@@ -190,7 +190,7 @@ define([
 
         $("<div id='about_qc'><ul><li><a href='/checks/about_qc_proc'>Help for Manual QC</a></li></ul></div>").insertAfter('#links > ul:nth-child(2)');
 
-        $('.lane_mqc_control').each(function (index, element) {
+        $(MQC_ABLE_CLASS).each(function (index, element) {
           var $element = $(element);
           var rowId = $element.closest('tr').attr('id');
           if ( typeof rowId === 'string' ) {
@@ -211,7 +211,7 @@ define([
                         qc_css_styles.removePreviousQCOutcomeStyles($(element));
                       });
               $element.css("padding-right", "5px").css("padding-left", "10px");
-              var obj = $(qc_utils.buildIdSelector(c.rowId)).find('.lane_mqc_control');
+              var obj = $(qc_utils.buildIdSelector(c.rowId)).find(MQC_ABLE_CLASS);
               c.linkControl(obj, 'mqc');
             }
           }
@@ -244,7 +244,8 @@ define([
       try {
         var prodConfiguration = new NPG.QC.ProdConfiguration(qcOutcomesURL);
         var uqcOutcomes = qcOutcomes.uqc;
-   
+  
+
         $(MQC_ABLE_CLASS).each(function (index, element) {
           if (NPG.QC.isElementUQCable(element) || !isRunPage){
             var $element = $(element);
@@ -295,6 +296,7 @@ define([
 
         this.TYPE_LIB = 'lib';
         this.TYPE_SEQ = 'seq';
+        this.TYPE_UQC = 'uqc';
 
         this.CONFIG_CONTROL_TAG     = 'gui_controller'; //For link in DOM
 
@@ -315,10 +317,10 @@ define([
           throw new Error('Error: Invalid state');
         }
         if(this.outcome === qc_utils.OUTCOMES.ACCEPTED_PRELIMINARY) {
-          this.updateOutcome(qc_utils.OUTCOMES.ACCEPTED_FINAL);
+          this.updateOutcome(qc_utils.OUTCOMES.ACCEPTED_FINAL, 'mqc');
         }
         if(this.outcome === qc_utils.OUTCOMES.REJECTED_PRELIMINARY) {
-          this.updateOutcome(qc_utils.OUTCOMES.REJECTED_FINAL);
+          this.updateOutcome(qc_utils.OUTCOMES.REJECTED_FINAL, 'mqc');
         }
       };
 
@@ -541,7 +543,7 @@ define([
       /**
        * Change the outcome.
        */
-      LaneMQCControl.prototype.updateOutcome = function(outcome) {
+      LaneMQCControl.prototype.updateOutcome = function(outcome, qcType) {
         var prevOutcome = this.outcome;
         try {
           var self = this;
@@ -551,7 +553,8 @@ define([
                 + this.abstractConfiguration.getRoot()
                 + "/images/waiting.gif' width='10' height='10' title='Processing request.'>");
 
-            var query = qc_utils.buildUpdateQuery(self.TYPE_SEQ, [{rptKey: self.rptKey, mqc_outcome: outcome}]);
+            var queryType = qcType === 'uqc' ? self.TYPE_UQC : self.TYPE_SEQ;
+            var query = qc_utils.buildUpdateQuery(queryType, [{rptKey: self.rptKey, qc_outcome: outcome}]);
             $.ajax({
               url: self.abstractConfiguration.qcOutcomesURL,
               type: 'POST',
@@ -629,7 +632,7 @@ define([
 
         //link the radio group to the update function
         $("input[name='" + name + "']").on("change", function () {
-          self.updateOutcome(this.value);
+          self.updateOutcome(this.value, qcType);
         });
         //add a new working span
         self.lane_control.append("<span class='lane_mqc_working' />");     
@@ -658,12 +661,13 @@ define([
       /**
        * Change the outcome.
        */
-      LibraryMQCControl.prototype.updateOutcome = function(outcome) {
+      LibraryMQCControl.prototype.updateOutcome = function(outcome, qcType) {
         var prevOutcome = this.outcome;
         try {
           var self = this;
           if(outcome != self.outcome) {
-            var query = qc_utils.buildUpdateQuery(self.TYPE_LIB, [{rptKey: self.rptKey, mqc_outcome: outcome}]);
+            var queryType = qcType === 'uqc' ? self.TYPE_UQC : self.TYPE_SEQ;
+            var query = qc_utils.buildUpdateQuery(queryType, [{rptKey: self.rptKey, qc_outcome: outcome}]);
             //Show progress icon
             self.lane_control.find(self.LANE_MQC_WORKING_CLASS).html("<img src='" +
                 this.abstractConfiguration.getRoot() +
@@ -734,7 +738,7 @@ define([
         
         //link the radio group to the update function
         $("input[name='" + name + "']").on("change", function () {
-          self.updateOutcome(this.value);
+          self.updateOutcome(this.value, qcType);
         });
         //add a new working span
         self.lane_control.append("<span class='lane_mqc_working' />");

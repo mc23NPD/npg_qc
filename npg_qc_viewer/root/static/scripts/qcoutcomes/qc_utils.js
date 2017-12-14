@@ -32,7 +32,11 @@ define(['jquery'], function () {
     query = query || {};
     query[type] = {};
     for ( var i = 0; i < qcOutcomes.length; i++ ) {
-      query[type][qcOutcomes[i].rptKey] = { mqc_outcome: qcOutcomes[i].mqc_outcome };
+      if (type === 'uqc') {
+        query[type][qcOutcomes[i].rptKey] = { uqc_outcome: qcOutcomes[i].qc_outcome };
+      } else {
+        query[type][qcOutcomes[i].rptKey] = { mqc_outcome: qcOutcomes[i].qc_outcome };
+      }
     }
     query.Action = ACTION;
     return query;
