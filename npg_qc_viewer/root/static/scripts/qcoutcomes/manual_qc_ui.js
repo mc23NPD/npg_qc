@@ -142,7 +142,7 @@ var NPG;
           return html;
         };
 
-        MQCLibraryOverallControls.prototype.init = function () {
+        MQCLibraryOverallControls.prototype.init = function (qcType) {
           var self = this;
           var all_accept = $($('.' + self.CLASS_ALL_ACCEPT).first());
           var all_reject = $($('.' + self.CLASS_ALL_REJECT).first());
@@ -189,13 +189,17 @@ var NPG;
             }
           };
 
-          var prepareUpdate = function (outcome, caller) {
+          var prepareUpdate = function (outcome, caller, qcType) {
             try {
               var ids = [];
               $('.lane_mqc_control').closest('tr').each(function (index, element) {
-                ids.push({rptKey: qc_utils.rptKeyFromId($(element).attr('id')), mqc_outcome: outcome});
+                ids.push({rptKey: qc_utils.rptKeyFromId($(element).attr('id')), qc_outcome: outcome});
               });
-              var query = qc_utils.buildUpdateQuery('lib', ids);
+              var outcomeType = 'lib' ;
+              if (qcType === 'uqc') {
+                outcomeType = 'uqc';
+              }
+              var query = qc_utils.buildUpdateQuery(outcomeType, ids);
               var callback = function () {
                 resetOnClick();
                 var new_outcome;
@@ -242,16 +246,20 @@ var NPG;
               qc_utils.displayError('Error while updating interface, checking if all libraries have matching outcome. ' + ex);
             }
           };
+
           placeholder.data('updateIfAllMatch', updateIfAllLibsSameOutcome);
 
           all_accept.data('function_call', function () {
-            prepareUpdate(qc_utils.OUTCOMES.ACCEPTED_PRELIMINARY, all_accept);
+            var outcomeByQCType = qc_utils.selectOutcomeByQCType ('Accepted', qcType);
+            prepareUpdate(outcomeByQCType, all_accept, qcType);
           });
           all_reject.data('function_call', function () {
-            prepareUpdate(qc_utils.OUTCOMES.REJECTED_PRELIMINARY, all_reject);
+            var outcomeByQCType = qc_utils.selectOutcomeByQCType ('Undecided', qcType);
+            prepareUpdate(outcomeByQCType, all_reject, qcType);
           });
           all_und.data('function_call', function () {
-            prepareUpdate(qc_utils.OUTCOMES.UNDECIDED, all_und);
+            var outcomeByQCType = qc_utils.selectOutcomeByQCType ('Rejected', qcType);
+            prepareUpdate(outcomeByQCType, all_und, qcType);
           });
 
           resetOnClick();

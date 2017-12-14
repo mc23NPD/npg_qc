@@ -184,7 +184,7 @@ define([
             qc_css_styles.removePreviousQCOutcomeStyles($element);
           });
           overallControls.setupControls();
-          overallControls.init();
+          overallControls.init('mqc');
           updateOverall = $($('.library_mqc_overall_controls')).data('updateIfAllMatch');
         }
 
@@ -244,10 +244,20 @@ define([
       try {
         var prodConfiguration = new NPG.QC.ProdConfiguration(qcOutcomesURL);
         var uqcOutcomes = qcOutcomes.uqc;
-  
+        var updateOverall;
+
+        if ( !isRunPage ) {
+          $("#results_summary .lane").first()
+                                     .append('<span class="library_mqc_overall_controls"></span>');
+          var overallControls = new NPG.QC.UI.MQCLibraryOverallControls(prodConfiguration);
+          overallControls.setupControls();
+          overallControls.init('uqc');
+          updateOverall = $($('.library_mqc_overall_controls')).data('updateIfAllMatch');
+        }
+
 
         $(MQC_ABLE_CLASS).each(function (index, element) {
-          if (NPG.QC.isElementUQCable(element) || !isRunPage){
+          if (NPG.QC.isElementUQCable(element)){
             var $element = $(element);
             var rowId = $element.closest('tr').attr('id');
             var $elementToMark;
@@ -280,6 +290,10 @@ define([
               c.linkControl($elementToMark, 'uqc');            
             }  
           }
+
+          // if ( typeof updateOverall === 'function' ) {
+          //   updateOverall();
+          // }
         });
       } catch (ex) {
         qc_utils.displayError('Error while initiating utility QC interface. ' + ex);
