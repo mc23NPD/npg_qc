@@ -110,22 +110,6 @@ define(['jquery'], function () {
     }
     return true;
   };
-  
-  var selectOutcomeByQCType = function (outcome, qcType) {
-    if (qcType === 'mqc') {
-      switch ( outcome ) {
-        case 'Accepted': return QC_OUTCOMES.ACCEPTED_PRELIMINARY;
-        case 'Rejected': return QC_OUTCOMES.REJECTED_PRELIMINARY; 
-        case 'Undecided': return qc_utils.OUTCOMES.UNDECIDED; 
-      }
-    } else if (qcType === 'uqc') {
-        switch ( outcome ) {
-          case 'Accepted': return QC_OUTCOMES.ACCEPTED_UQC; 
-          case 'Rejected': return QC_OUTCOMES.REJECTED_UQC; 
-          case 'Undecided': return QC_OUTCOMES.UNDECIDED; 
-        }
-    }
-  };
 
   var QC_OUTCOMES = {
     ACCEPTED_PRELIMINARY: 'Accepted preliminary',
@@ -136,6 +120,22 @@ define(['jquery'], function () {
     UNDECIDED_FINAL:      'Undecided final',
     ACCEPTED_UQC:         'Accepted',
     REJECTED_UQC:         'Rejected'
+  };
+
+  var selectOutcomeByQCType = function (outcome, qcType) {
+    if (qcType === 'mqc') {
+      switch ( outcome ) {
+        case 'Accepted': return QC_OUTCOMES.ACCEPTED_PRELIMINARY;
+        case 'Rejected': return QC_OUTCOMES.REJECTED_PRELIMINARY; 
+        case 'Undecided': return QC_OUTCOMES.UNDECIDED; 
+      }
+    } else if (qcType === 'uqc') {
+        switch ( outcome ) {
+          case 'Accepted': return QC_OUTCOMES.ACCEPTED_UQC; 
+          case 'Rejected': return QC_OUTCOMES.REJECTED_UQC; 
+          case 'Undecided': return QC_OUTCOMES.UNDECIDED; 
+        }
+    }
   };
 
   return {
