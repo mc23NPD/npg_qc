@@ -440,9 +440,9 @@ a, a:link, a:visited, a:hover {
   text-align: "left";
 }
 
-.td_library_uqc {
+.td_uqc {
   min-width: 110px;
-  text-align: "center";
+  text-align: "left";
 }
 
 .mqc {

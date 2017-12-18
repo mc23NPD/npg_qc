@@ -248,7 +248,7 @@ define([
 
         if ( !isRunPage ) {
           $("#results_summary .lane").first()
-                                     .append('<span class="library_mqc_overall_controls"></span>');
+                                     .append('<span class="library_mqc_overall_controls"></span>'); 
           var overallControls = new NPG.QC.UI.MQCLibraryOverallControls(prodConfiguration);
           overallControls.setupControls();
           overallControls.init('uqc');
@@ -266,14 +266,8 @@ define([
               var rptKey = qc_utils.rptKeyFromId(rowId);
               var isLaneKey = qc_utils.isLaneKey(rptKey);
 
-              if (isLaneKey) {
-                $element.after(UQC_CONTAINER_STRING);
-                $elementToMark = $($element.next('.' + UQC_CONTROL_CLASS)[0]);
-              } else {
-                var $libraryBrElement = $($element.parent()[0].nextElementSibling).find('br');
-                $libraryBrElement[0].insertAdjacentHTML('beforebegin', UQC_CONTAINER_STRING);
-                $elementToMark = $($libraryBrElement.prev());
-              }
+              $element.after(UQC_CONTAINER_STRING);
+              $elementToMark = $($element.next('.' + UQC_CONTROL_CLASS)[0]);
 
               var outcome ;
               if (typeof uqcOutcomes !== 'undefined' && 
@@ -281,7 +275,6 @@ define([
                 outcome = uqcOutcomes[rptKey].uqc_outcome;
               } 
               qc_css_styles.removePreviousQCOutcomeStyles ($elementToMark); 
-              $elementToMark.before('<span class="utility_spacer"> </span>');
               var c = isRunPage ? new NPG.QC.LaneMQCControl(prodConfiguration)
                                 : new NPG.QC.LibraryMQCControl(prodConfiguration);
               c.outcome  = outcome;
@@ -341,19 +334,19 @@ define([
       /**
        * Methods to deal with background colours.
        */
-      MQCControl.prototype.removeAllQCOutcomeCSSClasses = function () {
+      MQCControl.prototype.removeAllQCOutcomeCSSClasses = function (qcType) {
         var parent = this.lane_control.parent().first();
-        qc_css_styles.removePreviousQCOutcomeStyles(parent);
+        qc_css_styles.removePreviousQCOutcomeStyles(parent, qcType);
         parent.css("background-color", "");
       };
 
       MQCControl.prototype.setAcceptedBG = function() {
-        this.removeAllQCOutcomeCSSClasses();
+        this.removeAllQCOutcomeCSSClasses('mqc');
         qc_css_styles.displayElementAs(this.lane_control.parent().first(), qc_utils.OUTCOMES.ACCEPTED_FINAL);
       };
 
       MQCControl.prototype.setRejectedBG = function () {
-        this.removeAllQCOutcomeCSSClasses();
+        this.removeAllQCOutcomeCSSClasses('mqc');
         qc_css_styles.displayElementAs(this.lane_control.parent().first(), qc_utils.OUTCOMES.REJECTED_FINAL);
       };
 
@@ -373,14 +366,14 @@ define([
 
       MQCControl.prototype.setAcceptedPre = function() {
         this.outcome = qc_utils.OUTCOMES.ACCEPTED_PRELIMINARY;
-        this.removeAllQCOutcomeCSSClasses();
+        this.removeAllQCOutcomeCSSClasses('mqc');
         this.lane_control.parent().css("background-color", "#E5F2FF");
         this.lane_control.children('.lane_mqc_save').show();
       };
 
       MQCControl.prototype.setRejectedPre = function() {
         this.outcome = qc_utils.OUTCOMES.REJECTED_PRELIMINARY;
-        this.removeAllQCOutcomeCSSClasses();
+        this.removeAllQCOutcomeCSSClasses('mqc');
         this.lane_control.parent().css("background-color", "#FFDDDD");
         this.lane_control.children('.lane_mqc_save').show();
       };
@@ -401,31 +394,27 @@ define([
 
       MQCControl.prototype.setUndecided = function(qcType) {
         this.outcome = qc_utils.OUTCOMES.UNDECIDED;
-        this.removeAllQCOutcomeCSSClasses();
+        this.removeAllQCOutcomeCSSClasses(qcType);
         if (qcType === 'mqc') {
           this.lane_control.children('.lane_mqc_save').hide();
-        } else if (qcType === 'uqc') {
-          this.lane_control.before('<span class="utility_spacer"> </span>');
-        }
+        } 
       };
 
       MQCControl.prototype.setUndefined = function(qcType) {
-        this.removeAllQCOutcomeCSSClasses();
+        this.removeAllQCOutcomeCSSClasses(qcType);
         if (qcType === 'mqc') {
           this.lane_control.children('.lane_mqc_save').hide();
-        } else if (qcType === 'uqc') {
-          this.lane_control.before('<span class="utility_spacer"> </span>');
-        }
+        } 
       };
 
       MQCControl.prototype.setAcceptedUqc = function() {
+        this.removeAllQCOutcomeCSSClasses('uqc');
         this.outcome = qc_utils.OUTCOMES.ACCEPTED_UQC;
-        textAlignCenter();
       };
 
       MQCControl.prototype.setRejectedUqc = function() {
+        this.removeAllQCOutcomeCSSClasses('uqc');
         this.outcome = qc_utils.OUTCOMES.REJECTED_UQC;
-        textAlignCenter();
       };
 
       MQCControl.prototype.setActiveControlsOutcomes = function (qcType) {
@@ -527,9 +516,9 @@ define([
               //If previous outcome is preliminar.
               this.generateActiveControls('uqc');
               switch ( this.outcome ) {
-                case qc_utils.OUTCOMES.ACCEPTED_PRELIMINARY : this.setAcceptedPre(); break;
-                case qc_utils.OUTCOMES.REJECTED_PRELIMINARY : this.setRejectedPre(); break;
-                case qc_utils.OUTCOMES.UNDECIDED            : this.setUndecided('uqc'); break;
+                case qc_utils.OUTCOMES.ACCEPTED_UQC : this.setAcceptedUqc(); break;
+                case qc_utils.OUTCOMES.REJECTED_UQC : this.setRejectedUqc(); break;
+                case qc_utils.OUTCOMES.UNDECIDED    : this.setUndecided('uqc'); break;
               }
             }
           }
@@ -769,7 +758,10 @@ define([
       };
 
       MQCControl.prototype.addUQCFormat = function () {
-        this.lane_control.parent().addClass('td_library_uqc');
+        //this.lane_control.parent().addClass('td_uqc');
+        this.lane_control.parent().css('text-align', 'left');
+        this.lane_control.css('padding-right', '5px').css('padding-left', '13px');
+        $('.lane_mqc_overall').css('padding-left', '5px');
       };
 
 
