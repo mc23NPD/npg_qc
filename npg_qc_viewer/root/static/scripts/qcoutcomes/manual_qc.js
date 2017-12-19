@@ -155,7 +155,6 @@ define([
     QC.launchManualQCProcesses = function (isRunPage, qcOutcomes, qcOutcomesURL) {
       _validatelaunchProcessParameters (isRunPage, qcOutcomes, qcOutcomesURL);
       try {
-
         if ( typeof qcOutcomes.seq === 'undefined' ) {
           throw 'Sequencing outcomes cannot be undefined.';
         }
