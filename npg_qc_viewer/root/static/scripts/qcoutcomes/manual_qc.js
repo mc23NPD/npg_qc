@@ -77,19 +77,6 @@ define([
     }) ();
     QC.ProdConfiguration = ProdConfiguration;
 
-
-    var _colourElementByUQCOutcome = function (elementToMark, uqcOutcome) {
-      var colour = COLOURS_RGB.GREY;
-      if (uqcOutcome === "Accepted"){
-        colour = COLOURS_RGB.GREEN;
-      } else if (uqcOutcome === "Rejected") {
-        colour = COLOURS_RGB.RED;
-      }
-      elementToMark.css("padding-right", "5px")
-                      .css("padding-left", "10px")
-                      .css("background-color", colour);
-    };
-
     var _validatelaunchProcessParameters =  function (isRunPage, qcOutcomes, qcOutcomesURL) {
       if ( typeof isRunPage !== 'boolean' ||
            typeof qcOutcomes !== 'object' ||
