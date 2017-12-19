@@ -101,7 +101,7 @@ var NPG;
       UI.MQCOutcomeRadio = MQCOutcomeRadio;
 
       var MQCLibraryOverallControls = (function () {
-        MQCLibraryOverallControls = function(abstractConfiguration) {
+        MQCLibraryOverallControls = function(abstractConfiguration, qcType) {
           this.PLACEHOLDER       = 'library_mqc_overall_controls';
           this.PLACEHOLDER_CLASS = '.' + this.PLACEHOLDER;
 
@@ -118,6 +118,8 @@ var NPG;
           this.ICON_ACCEPT    = "<img src='" + abstractConfiguration.getRoot() + "/images/tick.png' width='10' height='10'/>";
           this.ICON_REJECT    = "<img src='" + abstractConfiguration.getRoot() + "/images/cross.png' width='10' height='10'/>";
           this.ICON_UNDECIDED = "<img src='" + abstractConfiguration.getRoot() + "/images/circle.png' width='10' height='10'/>";
+
+          this.QC_TYPE = qcType;
         };
 
         MQCLibraryOverallControls.prototype.setupControls = function (placeholder) {
@@ -222,7 +224,13 @@ var NPG;
           var updateIfAllLibsSameOutcome = function () {
             try {
               var outcomes = [];
-              $('.lane_mqc_control').each( function (index, element) {
+              var controlSelectorClass;
+              if(self.QC_TYPE === 'mqc') {
+                controlSelectorClass = '.lane_mqc_control';
+              } else if (self.QC_TYPE === 'uqc'){
+                controlSelectorClass = '.uqc_control';
+              }
+              $(controlSelectorClass).each( function (index, element) {
                 outcomes.push($(element).data('gui_controller').outcome);
               });
               var unique = true;
@@ -235,7 +243,9 @@ var NPG;
                 switch ( outcomes[0] ) {
                   case qc_utils.OUTCOMES.ACCEPTED_PRELIMINARY: button = $('.' + self.CLASS_ALL_ACCEPT); break;
                   case qc_utils.OUTCOMES.REJECTED_PRELIMINARY: button = $('.' + self.CLASS_ALL_REJECT); break;
-                  case qc_utils.OUTCOMES.UNDECIDED: button = $('.' + self.CLASS_ALL_UNDECIDED); break;
+                  case qc_utils.OUTCOMES.ACCEPTED_UQC:         button = $('.' + self.CLASS_ALL_ACCEPT); break;
+                  case qc_utils.OUTCOMES.REJECTED_UQC:         button = $('.' + self.CLASS_ALL_REJECT); break;
+                  case qc_utils.OUTCOMES.UNDECIDED:            button = $('.' + self.CLASS_ALL_UNDECIDED); break;
                 }
                 if ( typeof button !== 'undefined') {
                   button.off('click');

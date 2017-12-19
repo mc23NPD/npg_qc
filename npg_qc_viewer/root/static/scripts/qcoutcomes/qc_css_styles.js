@@ -47,7 +47,7 @@ define(['jquery'], function () {
 
     if (_isValidStyleClass(newClass) ) {
       //TODO Consider only remove/add if object does not have the new class
-      removePreviousQCOutcomeStyles(element);
+      removePreviousQCOutcomeStyles(element, 'mqc');
       element.addClass(newClass);  
     } else {
       throw "Can't find corresponding style for QC outcome " + qcOutcome + ".";

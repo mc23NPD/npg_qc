@@ -177,7 +177,7 @@ define([
 
           $("#results_summary .lane").first()
                                      .append('<span class="library_mqc_overall_controls"></span>');
-          var overallControls = new NPG.QC.UI.MQCLibraryOverallControls(prodConfiguration);
+          var overallControls = new NPG.QC.UI.MQCLibraryOverallControls(prodConfiguration, 'mqc');
           $('.lane').each(function (index, element){
             var $element = $(element);
             $element.css('background-color', '');
@@ -249,7 +249,7 @@ define([
         if ( !isRunPage ) {
           $("#results_summary .lane").first()
                                      .append('<span class="library_mqc_overall_controls"></span>'); 
-          var overallControls = new NPG.QC.UI.MQCLibraryOverallControls(prodConfiguration);
+          var overallControls = new NPG.QC.UI.MQCLibraryOverallControls(prodConfiguration, 'uqc');
           overallControls.setupControls();
           overallControls.init('uqc');
           updateOverall = $($('.library_mqc_overall_controls')).data('updateIfAllMatch');
@@ -284,9 +284,9 @@ define([
             }  
           }
 
-          // if ( typeof updateOverall === 'function' ) {
-          //   updateOverall();
-          // }
+          if ( typeof updateOverall === 'function' ) {
+            updateOverall();
+          }
         });
       } catch (ex) {
         qc_utils.displayError('Error while initiating utility QC interface. ' + ex);
