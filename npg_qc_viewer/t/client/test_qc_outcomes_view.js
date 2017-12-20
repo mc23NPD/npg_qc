@@ -114,7 +114,7 @@ requirejs([
       assert.equal(elementsWithClass, 0, 'Correct number of tags with updated class different run');
     });
 
-    QUnit.test('Test changing the interface mocking ajax', function (assert) {
+    QUnit.test('Test changing the interface mocking ajax for mqc', function (assert) {
       assert.expect(10);
       var old_ajax = $.ajax;
       $.ajax = function (options) {
@@ -689,7 +689,7 @@ requirejs([
        
     });
 
-    QUnit.test("Identifying uqc-able elements", function (assert) {
+    QUnit.test("Control buttons reflect uqc outcomes", function (assert) {
       var page_fixture = fixtures.fixtures_menu_links;
       var MQC_ABLE_CLASS = '.lane_mqc_control';
       var UQC_CONTROL_CLASS = 'uqc_control';
@@ -723,26 +723,37 @@ requirejs([
         "19001:1:1"
       ].forEach (function(targetId, index) {
           var $inputButtons = $(qc_utils.buildIdSelectorFromRPT(targetId) + ' .' + UQC_CONTROL_CLASS + ">input");
-          var outcomeValue;
+          assert.equal($inputButtons.length, 3, 'Three buttons exist for ' + targetId);
+          var checkedOutcomeValue ;
+          var nbChecked = 0;
+          var nbUnchecked = 0;
           $inputButtons.each (function(ind, input) {
              if ($(input).is("[checked]")){
-                 outcomeValue = $(input).attr("value");
+                 checkedOutcomeValue = $(input).attr("value");
+                 nbChecked ++;
+             } else {
+                nbUnchecked++;
              }
           });
-          assert.ok(typeof outcomeValue !== 'undefined','value is defined for ' + targetId);
-          assert.equal( outcomeValue, expectedDefinedValues[index], 'expected value found for ' + targetId); 
+          assert.ok(typeof checkedOutcomeValue !== 'undefined', 'A checked value is defined for ' + targetId);
+          assert.equal(nbChecked, 1, 'Only one button is checked for ' + targetId);
+          assert.equal(checkedOutcomeValue, expectedDefinedValues[index], 'The checked button has the expected value for ' + targetId);
+          assert.equal(nbUnchecked, 2, 'Two buttons remain unchecked for ' + targetId);
       });
 
-      var $inputButtons = $(qc_utils.buildIdSelectorFromRPT("19001:1:2") + ' .' + UQC_CONTROL_CLASS + ">input");
-      var outcomeValue;
+      var targetId = "19001:1:2";
+      var $inputButtons = $(qc_utils.buildIdSelectorFromRPT(targetId) + ' .' + UQC_CONTROL_CLASS + ">input");
+      assert.equal($inputButtons.length, 3, 'Three buttons exist for ' + targetId);
+      var checkedOutcomeValue;
       $inputButtons.each (function(ind, input) {
          if ($(input).is("[checked]")){
-             outcomeValue = $(input).attr("value");
+             checkedOutcomeValue = $(input).attr("value");
          }
       });
-      assert.ok(typeof outcomeValue === 'undefined','value is undefined for 19001:1:2');
+      assert.ok(typeof checkedOutcomeValue === 'undefined','value is undefined for 19001:1:2 (none button is checked)');
+    });
 
-    });    
+    
 
     // run the tests.
     QUnit.start();
