@@ -21,13 +21,17 @@ define(['jquery'], function () {
     return (Object.keys(_outcomeStyleClassToStyle).indexOf(styleClass) != -1);
   };
 
-  var removePreviousQCOutcomeStyles = function (element) {
+  var removePreviousQCOutcomeStyles = function (element, qcType) {
     if (typeof element === 'undefined') {
       throw 'Element cannot be undefined.';
     }
-    element.removeClass(function (index, css) {
-      return (css.match (/qc_outcome[a-zA-Z_]+/gi) || []).join(' ');
-    });
+    if (qcType === 'uqc') {
+      element.parent().find('span[class^="utility_"]').remove('[class^="utility_"]');
+    } else if (qcType === 'mqc') {
+      element.removeClass(function (index, css) {
+        return (css.match (/qc_outcome[a-zA-Z_]+/gi) || []).join(' ');
+      });
+    }
   };
 
   var displayElementAs = function( element, qcOutcome ) {
@@ -43,7 +47,7 @@ define(['jquery'], function () {
 
     if (_isValidStyleClass(newClass) ) {
       //TODO Consider only remove/add if object does not have the new class
-      removePreviousQCOutcomeStyles(element);
+      removePreviousQCOutcomeStyles(element, 'mqc');
       element.addClass(newClass);  
     } else {
       throw "Can't find corresponding style for QC outcome " + qcOutcome + ".";

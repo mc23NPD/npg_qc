@@ -101,7 +101,7 @@ var NPG;
       UI.MQCOutcomeRadio = MQCOutcomeRadio;
 
       var MQCLibraryOverallControls = (function () {
-        MQCLibraryOverallControls = function(abstractConfiguration) {
+        MQCLibraryOverallControls = function(abstractConfiguration, qcType) {
           this.PLACEHOLDER       = 'library_mqc_overall_controls';
           this.PLACEHOLDER_CLASS = '.' + this.PLACEHOLDER;
 
@@ -118,6 +118,8 @@ var NPG;
           this.ICON_ACCEPT    = "<img src='" + abstractConfiguration.getRoot() + "/images/tick.png' width='10' height='10'/>";
           this.ICON_REJECT    = "<img src='" + abstractConfiguration.getRoot() + "/images/cross.png' width='10' height='10'/>";
           this.ICON_UNDECIDED = "<img src='" + abstractConfiguration.getRoot() + "/images/circle.png' width='10' height='10'/>";
+
+          this.QC_TYPE = qcType;
         };
 
         MQCLibraryOverallControls.prototype.setupControls = function (placeholder) {
@@ -142,7 +144,7 @@ var NPG;
           return html;
         };
 
-        MQCLibraryOverallControls.prototype.init = function () {
+        MQCLibraryOverallControls.prototype.init = function (qcType) {
           var self = this;
           var all_accept = $($('.' + self.CLASS_ALL_ACCEPT).first());
           var all_reject = $($('.' + self.CLASS_ALL_REJECT).first());
@@ -189,13 +191,17 @@ var NPG;
             }
           };
 
-          var prepareUpdate = function (outcome, caller) {
+          var prepareUpdate = function (outcome, caller, qcType) {
             try {
               var ids = [];
               $('.lane_mqc_control').closest('tr').each(function (index, element) {
-                ids.push({rptKey: qc_utils.rptKeyFromId($(element).attr('id')), mqc_outcome: outcome});
+                ids.push({rptKey: qc_utils.rptKeyFromId($(element).attr('id')), qc_outcome: outcome});
               });
-              var query = qc_utils.buildUpdateQuery('lib', ids);
+              var outcomeType = 'lib' ;
+              if (qcType === 'uqc') {
+                outcomeType = 'uqc';
+              }
+              var query = qc_utils.buildUpdateQuery(outcomeType, ids);
               var callback = function () {
                 resetOnClick();
                 var new_outcome;
@@ -218,7 +224,13 @@ var NPG;
           var updateIfAllLibsSameOutcome = function () {
             try {
               var outcomes = [];
-              $('.lane_mqc_control').each( function (index, element) {
+              var controlSelectorClass;
+              if(self.QC_TYPE === 'mqc') {
+                controlSelectorClass = '.lane_mqc_control';
+              } else if (self.QC_TYPE === 'uqc'){
+                controlSelectorClass = '.uqc_control';
+              }
+              $(controlSelectorClass).each( function (index, element) {
                 outcomes.push($(element).data('gui_controller').outcome);
               });
               var unique = true;
@@ -231,7 +243,9 @@ var NPG;
                 switch ( outcomes[0] ) {
                   case qc_utils.OUTCOMES.ACCEPTED_PRELIMINARY: button = $('.' + self.CLASS_ALL_ACCEPT); break;
                   case qc_utils.OUTCOMES.REJECTED_PRELIMINARY: button = $('.' + self.CLASS_ALL_REJECT); break;
-                  case qc_utils.OUTCOMES.UNDECIDED: button = $('.' + self.CLASS_ALL_UNDECIDED); break;
+                  case qc_utils.OUTCOMES.ACCEPTED_UQC:         button = $('.' + self.CLASS_ALL_ACCEPT); break;
+                  case qc_utils.OUTCOMES.REJECTED_UQC:         button = $('.' + self.CLASS_ALL_REJECT); break;
+                  case qc_utils.OUTCOMES.UNDECIDED:            button = $('.' + self.CLASS_ALL_UNDECIDED); break;
                 }
                 if ( typeof button !== 'undefined') {
                   button.off('click');
@@ -242,16 +256,20 @@ var NPG;
               qc_utils.displayError('Error while updating interface, checking if all libraries have matching outcome. ' + ex);
             }
           };
+
           placeholder.data('updateIfAllMatch', updateIfAllLibsSameOutcome);
 
           all_accept.data('function_call', function () {
-            prepareUpdate(qc_utils.OUTCOMES.ACCEPTED_PRELIMINARY, all_accept);
+            var outcomeByQCType = qc_utils.selectOutcomeByQCType ('Accepted', qcType);
+            prepareUpdate(outcomeByQCType, all_accept, qcType);
           });
           all_reject.data('function_call', function () {
-            prepareUpdate(qc_utils.OUTCOMES.REJECTED_PRELIMINARY, all_reject);
+            var outcomeByQCType = qc_utils.selectOutcomeByQCType ('Rejected', qcType);
+            prepareUpdate(outcomeByQCType, all_reject, qcType);
           });
           all_und.data('function_call', function () {
-            prepareUpdate(qc_utils.OUTCOMES.UNDECIDED, all_und);
+            var outcomeByQCType = qc_utils.selectOutcomeByQCType ('Undecided', qcType);
+            prepareUpdate(outcomeByQCType, all_und, qcType);
           });
 
           resetOnClick();

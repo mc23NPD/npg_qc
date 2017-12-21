@@ -32,7 +32,11 @@ define(['jquery'], function () {
     query = query || {};
     query[type] = {};
     for ( var i = 0; i < qcOutcomes.length; i++ ) {
-      query[type][qcOutcomes[i].rptKey] = { mqc_outcome: qcOutcomes[i].mqc_outcome };
+      if (type === 'uqc') {
+        query[type][qcOutcomes[i].rptKey] = { uqc_outcome: qcOutcomes[i].qc_outcome };
+      } else {
+        query[type][qcOutcomes[i].rptKey] = { mqc_outcome: qcOutcomes[i].qc_outcome };
+      }
     }
     query.Action = ACTION;
     return query;
@@ -113,7 +117,25 @@ define(['jquery'], function () {
     REJECTED_PRELIMINARY: 'Rejected preliminary',
     REJECTED_FINAL:       'Rejected final',
     UNDECIDED:            'Undecided',
-    UNDECIDED_FINAL:      'Undecided final'
+    UNDECIDED_FINAL:      'Undecided final',
+    ACCEPTED_UQC:         'Accepted',
+    REJECTED_UQC:         'Rejected'
+  };
+
+  var selectOutcomeByQCType = function (outcome, qcType) {
+    if (qcType === 'mqc') {
+      switch ( outcome ) {
+        case 'Accepted': return QC_OUTCOMES.ACCEPTED_PRELIMINARY;
+        case 'Rejected': return QC_OUTCOMES.REJECTED_PRELIMINARY; 
+        case 'Undecided': return QC_OUTCOMES.UNDECIDED; 
+      }
+    } else if (qcType === 'uqc') {
+        switch ( outcome ) {
+          case 'Accepted': return QC_OUTCOMES.ACCEPTED_UQC; 
+          case 'Rejected': return QC_OUTCOMES.REJECTED_UQC; 
+          case 'Undecided': return QC_OUTCOMES.UNDECIDED; 
+        }
+    }
   };
 
   return {
@@ -127,6 +149,7 @@ define(['jquery'], function () {
     isLaneKey: isLaneKey,
     rptKeyFromId: rptKeyFromId,
     seqFinal: seqFinal,
+    selectOutcomeByQCType: selectOutcomeByQCType,
     OUTCOMES: QC_OUTCOMES
   };
 });

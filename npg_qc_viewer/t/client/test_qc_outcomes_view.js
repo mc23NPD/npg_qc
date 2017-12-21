@@ -114,7 +114,7 @@ requirejs([
       assert.equal(elementsWithClass, 0, 'Correct number of tags with updated class different run');
     });
 
-    QUnit.test('Test changing the interface mocking ajax', function (assert) {
+    QUnit.test('Test changing the interface mocking ajax for mqc', function (assert) {
       assert.expect(10);
       var old_ajax = $.ajax;
       $.ajax = function (options) {
@@ -555,7 +555,7 @@ requirejs([
                       NPG.QC.addUQCLink ();
                     },
                     /A defined callback function is required as parameter/, 
-                    "Throws when no callback function is passed"
+                    "Throws error when no callback function is passed"
                     );
 
       callback = 3;
@@ -564,7 +564,7 @@ requirejs([
                       NPG.QC.addUQCLink (callback);
                     },
                      /A defined callback function is required as parameter/, 
-                     "Throws when callback is not a function");
+                     "Throws error when callback is not a function");
 
       assert.equal(nbUQCLinks, 0, 'No preexisting annotation Link');
       NPG.QC.addUQCLink (function() {});
@@ -689,15 +689,11 @@ requirejs([
        
     });
 
-    QUnit.test("Identifying uqc-able elements", function (assert) {
+    QUnit.test("Control buttons identify and reflect existing uqc outcomes", function (assert) {
       var page_fixture = fixtures.fixtures_menu_links;
       var MQC_ABLE_CLASS = '.lane_mqc_control';
       var UQC_CONTROL_CLASS = 'uqc_control';
-      var COLOURS_RGB = {
-        RED:   'rgb(255, 0, 0)',
-        GREEN: 'rgb(0, 128, 0)',
-        GREY:  'rgb(128, 128, 128)',
-      };
+
       var qcOutcomes = {"lib":{},
                         "uqc":{"18245:1:1":{"uqc_outcome":"Rejected"},
                                "18245:1:2":{"uqc_outcome":"Accepted"},
@@ -715,28 +711,49 @@ requirejs([
       $('#uqcClickable').trigger('click');
       
 
-      var expectedColours = [
-        COLOURS_RGB.RED,
-        COLOURS_RGB.GREEN,
-        COLOURS_RGB.GREY,
-        COLOURS_RGB.GREY
+      var expectedDefinedValues = [
+        "Rejected",
+        "Accepted",
+        "Undecided"
       ];
 
       [
         "18245:1:1",
         "18245:1:2",
-        "19001:1:1",
-        "19001:1:2"
-      ].forEach(function(targetId, index) {
-        var $element = $($(qc_utils.buildIdSelectorFromRPT(targetId) + ' .' + UQC_CONTROL_CLASS)[0]);
-        assert.ok(typeof $element.css("background-color") !== 'undefined','colour is defined for ' + targetId);
-        assert.equal(
-          $element.css("background-color"),
-          expectedColours[index],
-          'expected colour found'
-        ); 
+        "19001:1:1"
+      ].forEach (function(targetId, index) {
+          var $inputButtons = $(qc_utils.buildIdSelectorFromRPT(targetId) + ' .' + UQC_CONTROL_CLASS + ">input");
+          assert.equal($inputButtons.length, 3, 'Three buttons exist for ' + targetId);
+          var checkedOutcomeValue ;
+          var nbChecked = 0;
+          var nbUnchecked = 0;
+          $inputButtons.each (function(ind, input) {
+             if ($(input).is("[checked]")){
+                 checkedOutcomeValue = $(input).attr("value");
+                 nbChecked ++;
+             } else {
+                nbUnchecked++;
+             }
+          });
+          assert.ok(typeof checkedOutcomeValue !== 'undefined', 'A checked value is defined for ' + targetId);
+          assert.equal(nbChecked, 1, 'Only one button is checked for ' + targetId);
+          assert.equal(checkedOutcomeValue, expectedDefinedValues[index], 'The checked button has the expected value for ' + targetId);
+          assert.equal(nbUnchecked, 2, 'Two buttons remain unchecked for ' + targetId);
       });
-    });    
+
+      var targetId = "19001:1:2";
+      var $inputButtons = $(qc_utils.buildIdSelectorFromRPT(targetId) + ' .' + UQC_CONTROL_CLASS + ">input");
+      assert.equal($inputButtons.length, 3, 'Three buttons exist for ' + targetId);
+      var checkedOutcomeValue;
+      $inputButtons.each (function(ind, input) {
+         if ($(input).is("[checked]")){
+             checkedOutcomeValue = $(input).attr("value");
+         }
+      });
+      assert.ok(typeof checkedOutcomeValue === 'undefined','value is undefined for 19001:1:2 (none button is checked)');
+    });
+
+    
 
     // run the tests.
     QUnit.start();

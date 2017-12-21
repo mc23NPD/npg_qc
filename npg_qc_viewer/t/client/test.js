@@ -459,7 +459,17 @@ requirejs([
           logged: 'Logged in as aa11 (mqc)'
         }
       ];
-      assert.expect(cases.length * 4 * ( Object.keys(qc_utils.OUTCOMES).length - 1 ));
+
+      var MQC_OUTCOMES = {
+        ACCEPTED_PRELIMINARY: 'Accepted preliminary',
+        ACCEPTED_FINAL:       'Accepted final',
+        REJECTED_PRELIMINARY: 'Rejected preliminary',
+        REJECTED_FINAL:       'Rejected final',
+        UNDECIDED:            'Undecided',
+        UNDECIDED_FINAL:      'Undecided final'
+      };
+      
+      assert.expect(cases.length * 4 * ( Object.keys(MQC_OUTCOMES).length - 1 ));
 
       var toClass = function ( outcome ) {
         return 'qc_outcome_' + outcome.toLowerCase().replace(' ', '_');
@@ -477,8 +487,8 @@ requirejs([
             $("#header > h1 > span.rfloat").text(thisCase.logged);
 
             runAsIfMain();
-            assert.ok($("#rpt_key\\3a 18000\\3a 1 > td.lane.nbsp").hasClass(expectedClass), 'With proper class in lane');
-            assert.ok($("#rpt_key\\3a 18000\\3a 2 > td.lane.nbsp").hasClass(expectedClass), 'With proper class in lane');
+            assert.ok($("#rpt_key\\3a 18000\\3a 1 > td.lane.nbsp").hasClass(expectedClass), thisCase + 'With proper class in lane ' + expectedClass);
+            assert.ok($("#rpt_key\\3a 18000\\3a 2 > td.lane.nbsp").hasClass(expectedClass), thisCase + 'With proper class in lane ' + expectedClass);
 
             var emptyContainers = [
               "#rpt_key\\3a 18000\\3a 1 > td.lane.nbsp > span.lane_mqc_control",
@@ -499,7 +509,7 @@ requirejs([
         }
       };
 
-      for ( var outcomeName in qc_utils.OUTCOMES ) {
+      for ( var outcomeName in MQC_OUTCOMES ) {
         var outcome = qc_utils.OUTCOMES[outcomeName];
 
         if ( outcome === qc_utils.OUTCOMES.UNDECIDED_FINAL ) { // No undecided final for lane
@@ -606,7 +616,7 @@ requirejs([
       var lane = $("#mqc_lane1");
       var control = new NPG.QC.LaneMQCControl(new TestConfiguration());
       assert.notEqual(control, undefined, "Control is an instance.");
-      control.linkControl(lane);
+      control.linkControl(lane, 'mqc');
       assert.notEqual(control.lane_control, undefined, "lane_control in Control is linked.");
       assert.equal(control.lane_control, lane, "Control and lane are correctly linked.");
       assert.equal(control.lane_control.outcome, undefined, "Outcome of lane is not defined.");
