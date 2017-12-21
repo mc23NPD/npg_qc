@@ -194,7 +194,7 @@ define([
                       .find('.lane, .tag_info')
                       .css("background-color", "")
                       .each(function (index, element) {
-                        qc_css_styles.removePreviousQCOutcomeStyles($(element),'mqc');
+                        qc_css_styles.removePreviousQCOutcomeStyles($(element), 'mqc');
                       });
               $element.css("padding-right", "5px").css("padding-left", "10px");
               var obj = $(qc_utils.buildIdSelector(c.rowId)).find(MQC_ABLE_CLASS);
