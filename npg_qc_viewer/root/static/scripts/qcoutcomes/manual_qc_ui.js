@@ -264,11 +264,11 @@ var NPG;
             prepareUpdate(outcomeByQCType, all_accept, qcType);
           });
           all_reject.data('function_call', function () {
-            var outcomeByQCType = qc_utils.selectOutcomeByQCType ('Undecided', qcType);
+            var outcomeByQCType = qc_utils.selectOutcomeByQCType ('Rejected', qcType);
             prepareUpdate(outcomeByQCType, all_reject, qcType);
           });
           all_und.data('function_call', function () {
-            var outcomeByQCType = qc_utils.selectOutcomeByQCType ('Rejected', qcType);
+            var outcomeByQCType = qc_utils.selectOutcomeByQCType ('Undecided', qcType);
             prepareUpdate(outcomeByQCType, all_und, qcType);
           });
 

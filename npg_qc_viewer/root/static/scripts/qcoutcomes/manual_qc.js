@@ -655,7 +655,7 @@ define([
         try {
           var self = this;
           if(outcome != self.outcome) {
-            var queryType = qcType === 'uqc' ? self.TYPE_UQC : self.TYPE_SEQ;
+            var queryType = qcType === 'uqc' ? self.TYPE_UQC : self.TYPE_LIB;
             var query = qc_utils.buildUpdateQuery(queryType, [{rptKey: self.rptKey, qc_outcome: outcome}]);
             //Show progress icon
             self.lane_control.find(self.LANE_MQC_WORKING_CLASS).html("<img src='" +

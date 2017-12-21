@@ -689,7 +689,7 @@ requirejs([
        
     });
 
-    QUnit.test("Control buttons reflect uqc outcomes", function (assert) {
+    QUnit.test("Control buttons identify and reflect existing uqc outcomes", function (assert) {
       var page_fixture = fixtures.fixtures_menu_links;
       var MQC_ABLE_CLASS = '.lane_mqc_control';
       var UQC_CONTROL_CLASS = 'uqc_control';
