@@ -167,7 +167,7 @@ define([
           $('.lane').each(function (index, element){
             var $element = $(element);
             $element.css('background-color', '');
-            qc_css_styles.removePreviousQCOutcomeStyles($element);
+            qc_css_styles.removePreviousQCOutcomeStyles($element, 'mqc');
           });
           overallControls.setupControls();
           overallControls.init('mqc');
@@ -194,7 +194,7 @@ define([
                       .find('.lane, .tag_info')
                       .css("background-color", "")
                       .each(function (index, element) {
-                        qc_css_styles.removePreviousQCOutcomeStyles($(element));
+                        qc_css_styles.removePreviousQCOutcomeStyles($(element),'mqc');
                       });
               $element.css("padding-right", "5px").css("padding-left", "10px");
               var obj = $(qc_utils.buildIdSelector(c.rowId)).find(MQC_ABLE_CLASS);
@@ -260,7 +260,7 @@ define([
                   typeof uqcOutcomes[rptKey] !== 'undefined') {
                 outcome = uqcOutcomes[rptKey].uqc_outcome;
               } 
-              qc_css_styles.removePreviousQCOutcomeStyles ($elementToMark); 
+              qc_css_styles.removePreviousQCOutcomeStyles ($elementToMark, 'uqc'); 
               var c = isRunPage ? new NPG.QC.LaneMQCControl(prodConfiguration)
                                 : new NPG.QC.LibraryMQCControl(prodConfiguration);
               c.outcome  = outcome;
